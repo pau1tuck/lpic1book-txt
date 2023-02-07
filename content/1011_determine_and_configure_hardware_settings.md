@@ -5,7 +5,7 @@ Category: LPIC1
 
 **Summary:** Candidates should be able to determine and configure fundamental system hardware.
 
-*Weight: 2*
+Weight: 2
 
 ## Objectives
 
@@ -30,23 +30,20 @@ An **operating system (OS)** is system software that manages computer hardware, 
 
 Firmware is the software *on* your hardware that runs it. Think of it as a built-in OS or driver for your hardware. Motherboards need some firmware to be able to work too.
 
-![BIOS](/images/bios.png)
-
 1. **BIOS (Basic Input/Output System)** (older): You can configure it from a text menu-based system and boot the computer from a bootloader in the first sector of the first partition of your hard disk (MBR). This is not enough for modern systems and most systems now use a two-step boot procedure.
-
-![UEFI](/images/uefi.jpeg)
 
 2. **UEFI (Unified Extensible Firmware Interface)**: Started as EFI in 1998 in Intel. Now the standard. Uses a specific disk partition for boot (EFI System Partition (ESP)) and uses FAT. On Linux it is on /boot and files are .efi. You need to register each bootloader.
 
 ## Peripheral Devices
+
 These are device interfaces.
+
 ### PCI
+
 Peripheral Component Interconnect. Letting hardware boards be added to the motherboard. Now most servers use PCI Express (PCIe)
 
-![PCI](/images/pci.jpeg)
-
 - Internal HDD.
-   - PATA (old)
+   - PATA (legacy)
    - SATA (serial & up to 4 devices)
    - SCSI (parallel & up to 8 devices)
 - External HDD. Fiber
@@ -57,6 +54,7 @@ Peripheral Component Interconnect. Letting hardware boards be added to the mothe
 - Audio cards
 
 ### USB
+
 Universal Serial Bus. Serial and need fewer connections.
 
 ![USB Interfaces](/images/usb.png)
@@ -65,6 +63,7 @@ Universal Serial Bus. Serial and need fewer connections.
 - A, B, C
 
 ### GPIO
+
 General Purpose Input Output.
 
 ![GPIO on a Raspberry Pi](/images/gpio.jpeg)
@@ -73,34 +72,33 @@ General Purpose Input Output.
 
 ## sysfs
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/879oHKwgDG8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-sysfs is a pseudo file system provided by the Linux kernel that exports information about various kernel subsystems, hardware devices, and associated device drivers from the kernel's device model to user space through virtual files.[1] In addition to providing information about various devices and kernel subsystems, exported virtual files are also used for their configuration.
+The **sysfs** is a pseudo file system provided by the Linux kernel that exports information about various kernel subsystems, hardware devices, and associated device drivers from the kernel's device model to user space through virtual files. In addition to providing information about various devices and kernel subsystems, exported virtual files are also used for their configuration.
 
 Sysfs is mounted under the `/sys` mount point.
 
-````
-jadi@funlife:~$ ls /sys
-block  bus  class  dev	devices  firmware  fs  hypervisor  kernel  module  power
-````
+```bash
+ls /sys
+block bus class dev devices firmware fs hypervisor kernel module power
+```
 
 All block devices are at the `block` and `bus` directory has all the connected PCI, USB, serial, ... devices. Note that here in `sys` we have the devices based on their technology but `/dev/` is abstracted.
 
 ## udev
-udev (userspace `/dev`) is a device manager for the Linux kernel. As the successor of devfsd and hotplug, udev primarily manages device nodes in the `/dev` directory. At the same time, udev also handles all user space events raised when hardware devices are added into the system or removed from it, including firmware loading as required by certain devices.
+**udev** (userspace `/dev`) is a device manager for the Linux kernel. As the successor of devfsd and hotplug, udev primarily manages device nodes in the `/dev` directory. At the same time, udev also handles all user space events raised when hardware devices are added into the system or removed from it, including firmware loading as required by certain devices.
 
 There are a lot of devices in `/dev/` and if you plug in any device, it will be assigned a file in `/dev` (say `/dev/sdb2`). **udev** lets you control what will be what in `/dev`. For example, you can use a rule to force your 128GB flash drive with one specific vendor to be `/dev/mybackup` every single time you connect it and you can even start a backprocess as soon as it connects.
 
-**udev** controls `/dev/` directory. There are abstracted devices like a hard, is `/dev/sda` or `/dev/hd0` regardless of its brand, model or technology:
+*udev* controls `/dev/` directory. There are abstracted devices like a hard, is `/dev/sda` or `/dev/hd0` regardless of its brand, model or technology:
 
-````
-root@funlife:/dev# ls /dev/sda*
+```bash
+ls /dev/sda*
 /dev/sda  /dev/sda1  /dev/sda2  /dev/sda3  /dev/sda5  /dev/sda6
-````
-If a program wants to read/write from/to a device, it will use the corresponding file in /dev to do so. This can be done on **character devices** or **block devices**. When listing, a `b` or `c` will indicate this:
-
 ```
-root@ocean:~# ls -ltrh /dev/  # Partial output is shown
+
+If a program wants to read/write from/to a device, it will use the corresponding file in /dev to do so. This can be done on **character devices** or **block devices**. When listing, `b` or `c` will indicate this:
+
+```bash
+ls -ltrh /dev/  # Partial output is shown
 crw-rw---- 1 root tty       4,   1 Dec 15  2019 tty1
 crw-rw-rw- 1 root root      1,   5 Dec 15  2019 zero
 brw-rw---- 1 root disk      1,   0 Dec 15  2019 ram0
@@ -108,10 +106,11 @@ brw-rw---- 1 root disk 253,   0 Dec 15  2019 /dev/vda
 ```
 
 ## dbus
-D-Bus is a message bus system, a simple way for applications to talk to one another. In addition to inter-process communication, D-Bus helps coordinate process lifecycle; It makes it simple and reliable to code a "single instance" application or daemon and to launch applications and daemons on demand when their services are needed.
 
+**dbus** is a message bus system, a simple way for applications to talk to one another. In addition to inter-process communication, D-Bus helps coordinate the process lifecycle. It makes it simple and reliable to code a "single instance" application or daemon and to launch applications and daemons on demand when their services are needed.
 
 ## proc directory
+
 This is where the Kernel keeps its settings and properties. This directory is created on ram and files might have write access (say for some hardware configurations). You can find things like:
 
 - IRQs (interrupt requests)
@@ -121,7 +120,7 @@ This is where the Kernel keeps its settings and properties. This directory is cr
 - Network Settings
 - ...
 
-````
+```bash
 $ ls /proc/
 1      1249   1451   1565   18069  20346  2426	2765  2926  3175  3317	3537  39    468   4921	53    689   969		 filesystems  misc	     sysvipc
 10     13     146    157    18093  20681  2452	2766  2929  3183  3318	354   397   4694  4934	538   7     97		 fs	      modules	     timer_list
@@ -140,11 +139,11 @@ $ ls /proc/
 1231   1444   155    17413  2	   2390   2719	2904  31    3287  3525	3803  46    4891  52	679   939   driver	 locks	      swaps
 1234   1446   156    17751  20	   24	  2723	2908  3132  3298  3528	3823  4622  49	  5202	680   940   execdomains  mdstat       sys
 1236   145    1563   18     2028   2418   2763	2911  3171  33	  3533	3845  4661  4907  525	687   96    fb		 meminfo      sysrq-trigger
-````
+```
 
-The numbers are the process IDs! There are also other files like `cpuinfo`, `mounts`, `meminfo`, ...
+The numbers are the process IDs. There are also other files like `cpuinfo`, `mounts`, `meminfo`, ...
 
-````
+```bash
 $ cat /proc/cpuinfo
 processor	: 0
 vendor_id	: GenuineIntel
@@ -197,40 +196,39 @@ clflush size	: 64
 cache_alignment	: 64
 address sizes	: 36 bits physical, 48 bits virtual
 power management:
-````
+```
 
 We can also write here. Since I'm on an IBM Lenovo laptop I can turn my LED on and off by writing here:
 
-````
-root@funlife:/proc/acpi/ibm# echo on > light
-root@funlife:/proc/acpi/ibm# echo off > light
-````
+```bash
+echo on > light
+echo off > light
+```
 
 One more traditional example is changing the max number of open files per user:
 
-````
+```bash
 root@funlife:/proc/sys/fs# cat file-max
 797946
 root@funlife:/proc/sys/fs# echo 1000000 > file-max
 root@funlife:/proc/sys/fs# cat file-max
 1000000
-````
+```
 Another very useful directory here, is `/proc/sys/net/ipv4` which controls real-time networking configurations.
 
 > All these changes will be reverted after a boot. You have to write into config files in `/etc/` to make these changes permanent
 
-Try yourself! Check the `/proc/ioports` or `/proc/dma` or `/proc/iomem`.
+Try it yourself. Check the `/proc/ioports` or `/proc/dma` or `/proc/iomem`.
 
 ## lsusb, lspci, lsblk, lshw
-Just like `ls` but for pci, usb, ...
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/b5bAXRSYmoA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+Just like `ls` but for pci, usb devices, etc.
 
 ### lspci
 Shows PCI devices that are connected to the computer.
 
-````
-# lspci
+```bash
+lspci
 00:00.0 Host bridge: Intel Corporation 2nd Generation Core Processor Family DRAM Controller (rev 09)
 00:02.0 VGA compatible controller: Intel Corporation 2nd Generation Core Processor Family Integrated Graphics Controller (rev 09)
 00:16.0 Communication controller: Intel Corporation 6 Series/C200 Series Chipset Family MEI Controller #1 (rev 04)
@@ -246,13 +244,14 @@ Shows PCI devices that are connected to the computer.
 00:1f.3 SMBus: Intel Corporation 6 Series/C200 Series Chipset Family SMBus Controller (rev 04)
 03:00.0 Network controller: Intel Corporation Centrino Wireless-N 1000 [Condor Peak]
 0d:00.0 System peripheral: Ricoh Co Ltd MMC/SD Host Controller (rev 07)
-````
+```
 
 
 ### lsusb
+
 Shows all the USB devices connected to the system.
 
-````
+```bash
 # lsusb
 Bus 002 Device 003: ID 1c4f:0026 SiGma Micro Keyboard
 Bus 002 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
@@ -262,25 +261,29 @@ Bus 001 Device 004: ID 0a5c:217f Broadcom Corp. BCM2045B (BDC-2.1)
 Bus 001 Device 003: ID 192f:0916 Avago Technologies, Pte.
 Bus 001 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
 Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-````
+```
 
 ### lshw
+
 Shows hardware. Test it!
 
 ### lsblk
+
 Used for list devices that can read from or write to by blocks of data.
 
 
 ## Loadable Kernel Modules
+
 Linux like any other OS needs drivers to work with hardware. In Microsoft Windows, you need to install the drivers separately but in Linux, the system has most of the drivers built-in. But to prevent the kernel from loading all of them at the same time and to decrease the Kernel size, Linux uses Kernel Modules. Loadable kernel modules (.ko files) are object files that are used to extend the kernel of the Linux Distribution. They are used to provide drivers for new hardware like IoT expansion cards that have not been included in the Linux Distribution.
 
 You can inspect the modules using the `lsmod` or manage them via `modprobe` commands.
 
 ### lsmod
+
 Shows kernel modules. They are located at `/lib/modules`.
 
-````
-root@funlife:/dev# lsmod
+```bash
+lsmod
 Module                  Size  Used by
 pci_stub               12622  1
 vboxpci                23256  0
@@ -324,29 +327,29 @@ aes_x86_64             17131  1 aesni_intel
 mei_me                 19742  0
 lrw                    13287  1 aesni_intel
 iwlwifi               183038  1 iwldvm
-````
+```
 
 These are the kernel modules that are loaded. Use `modinfo` to get more info about a module; If you want.
 
 If you need to add a module to your kernel (say a new driver for hardware) or remove it (uninstall a driver) you can use `rmmod` and `modprobe`.
 
-````
-# rmmod iwlwifi
-````
+```bash
+rmmod iwlwifi
+```
 
 And this is for installing the modules:
 
-````
-# insmod kernel/drivers/net/wireless/iwlwifi.ko
-````
+```bash
+insmod kernel/drivers/net/wireless/iwlwifi.ko
+```
 
 But nobody uses `insmod` because it does not understand dependencies and you need to give it the whole path to the module file. Instead, use the `modprobe` command:
 
-````
-# modprobe iwlwifi
-````
+```bash
+modprobe iwlwifi
+```
 
-> you can use `-f` switch to FORCE `rmmod` to remove the module even if it is in use
+> You can use `-f` switch to FORCE `rmmod` to remove the module even if it is in use.
 
 If you need to load some modules every time your system boots do one of the following:
 
